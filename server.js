@@ -1,12 +1,17 @@
 import http from "node:http";
 import { serveStatic } from "./utils/serveStatic.js";
+import { handleGoldPrice } from "./handlers/routeHandlers.js";
 
 const PORT = 3000;
 const __dirname = import.meta.dirname;
 
 const server = http.createServer(async (req, res) => {
     
-    await serveStatic(req, res, __dirname);
+    if (req.url === "/price") {
+        await handleGoldPrice(res);
+    } else {
+        await serveStatic(req, res, __dirname);
+    }
  
 });
 
