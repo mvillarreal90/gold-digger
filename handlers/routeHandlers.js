@@ -2,6 +2,8 @@ import { getGoldPrice } from "../utils/getGoldPrice.js";
 import { sendResponse } from "../utils/sendResponse.js";
 import { parseJSONBody } from "../utils/parseJSONBody.js";
 import { processPurchase } from "../utils/processPurchase.js"; 
+import { generatePDFDoc } from "../utils/generatePDFDoc.js";
+import { getData } from "../utils/getData.js";
 
 export async function handleGoldPrice(res) {   
     try {
@@ -28,7 +30,23 @@ export async function handlePost(req, res, __dirname) {
         processPurchase(parsedBody);
         sendResponse(res, 200, "application/json", JSON.stringify(parsedBody));
     } catch (err) {
-        sendResponse(res, 400, "application/json", JSON.stringify({ error: "jaja" }))
+        sendResponse(res, 400, "application/json", JSON.stringify({ error: err }))
     }
 
+}
+
+export async function handleDownload(res) {
+
+    try {
+        const data = await getData();
+        const pdfDoc = generatePDFDoc(data);   
+        res.writeHead(200, {
+            "Content-Type": "application/pdf",
+            "Content-Disposition": 'attachment; filename="investment-report.pdf"',
+        });
+        pdfDoc.pipe(res);
+        pdfDoc.end();
+    } catch (err) {
+        sendResponse(res, 400, "application/json", JSON.stringify({ error: err }))
+    }
 }
